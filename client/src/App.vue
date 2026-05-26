@@ -1,42 +1,80 @@
 <template>
-  <div class="app">
-    <header class="top-nav">
-      <div class="nav-container">
-        <div class="logo">
-          <h1>{{ t('nav.companyName') }}</h1>
-          <span class="subtitle">{{ t('nav.subtitle') }}</span>
-        </div>
-        <nav class="nav-tabs">
-          <router-link to="/" :class="{ active: $route.path === '/' }">
-            {{ t('nav.overview') }}
-          </router-link>
-          <router-link to="/inventory" :class="{ active: $route.path === '/inventory' }">
-            {{ t('nav.inventory') }}
-          </router-link>
-          <router-link to="/orders" :class="{ active: $route.path === '/orders' }">
-            {{ t('nav.orders') }}
-          </router-link>
-          <router-link to="/spending" :class="{ active: $route.path === '/spending' }">
-            {{ t('nav.finance') }}
-          </router-link>
-          <router-link to="/demand" :class="{ active: $route.path === '/demand' }">
-            {{ t('nav.demandForecast') }}
-          </router-link>
-          <router-link to="/reports" :class="{ active: $route.path === '/reports' }">
-            Reports
-          </router-link>
-        </nav>
-        <LanguageSwitcher />
-        <ProfileMenu
-          @show-profile-details="showProfileDetails = true"
-          @show-tasks="showTasks = true"
-        />
+  <div class="app-layout" :class="{ 'sidebar-collapsed': sidebarCollapsed }">
+    <aside class="sidebar">
+      <div class="sidebar-brand">
+        <span class="sidebar-brand-mark">CC</span>
+        <h1>{{ t('nav.companyName') }}</h1>
+        <span class="sidebar-subtitle">{{ t('nav.subtitle') }}</span>
       </div>
-    </header>
-    <FilterBar />
-    <main class="main-content">
-      <router-view />
-    </main>
+      <nav class="sidebar-nav">
+        <router-link to="/" :class="{ active: $route.path === '/' }" :title="t('nav.overview')">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
+            <path d="M9 21V12h6v9" />
+          </svg>
+          <span>{{ t('nav.overview') }}</span>
+        </router-link>
+        <router-link to="/inventory" :class="{ active: $route.path === '/inventory' }" :title="t('nav.inventory')">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z" />
+            <path d="M3.27 6.96L12 12.01 20.73 6.96" />
+            <path d="M12 22.08V12" />
+          </svg>
+          <span>{{ t('nav.inventory') }}</span>
+        </router-link>
+        <router-link to="/orders" :class="{ active: $route.path === '/orders' }" :title="t('nav.orders')">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2" />
+            <rect x="9" y="3" width="6" height="4" rx="2" />
+            <path d="M9 12h6M9 16h4" />
+          </svg>
+          <span>{{ t('nav.orders') }}</span>
+        </router-link>
+        <router-link to="/spending" :class="{ active: $route.path === '/spending' }" :title="t('nav.finance')">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="5" width="20" height="14" rx="2" />
+            <path d="M2 10h20M7 15h2M12 15h4" />
+          </svg>
+          <span>{{ t('nav.finance') }}</span>
+        </router-link>
+        <router-link to="/demand" :class="{ active: $route.path === '/demand' }" :title="t('nav.demandForecast')">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M22 7l-8.5 8.5-5-5L2 17" />
+            <path d="M16 7h6v6" />
+          </svg>
+          <span>{{ t('nav.demandForecast') }}</span>
+        </router-link>
+        <router-link to="/reports" :class="{ active: $route.path === '/reports' }" :title="t('nav.reports')">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
+            <path d="M14 2v6h6" />
+            <path d="M8 18v-4M12 18v-8M16 18v-2" />
+          </svg>
+          <span>{{ t('nav.reports') }}</span>
+        </router-link>
+      </nav>
+      <div class="sidebar-footer">
+        <LanguageSwitcher />
+        <ProfileMenu @show-profile-details="showProfileDetails = true" @show-tasks="showTasks = true" />
+        <button
+          class="sidebar-toggle"
+          @click="toggleSidebar"
+          aria-label="Toggle sidebar"
+          :title="sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'"
+        >
+          <svg class="toggle-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M11 17l-5-5 5-5"/>
+            <path d="M18 17l-5-5 5-5"/>
+          </svg>
+        </button>
+      </div>
+    </aside>
+    <div class="content-area">
+      <FilterBar />
+      <main class="main-content">
+        <router-view />
+      </main>
+    </div>
 
     <ProfileDetailsModal
       :is-open="showProfileDetails"
@@ -55,7 +93,7 @@
 </template>
 
 <script>
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, onUnmounted, computed } from 'vue'
 import { api } from './api'
 import { useAuth } from './composables/useAuth'
 import { useI18n } from './composables/useI18n'
@@ -80,6 +118,25 @@ export default {
     const showProfileDetails = ref(false)
     const showTasks = ref(false)
     const apiTasks = ref([])
+
+    // Sidebar collapse — persisted to localStorage so the user's choice survives reload
+    const sidebarCollapsed = ref(localStorage.getItem('sidebar-collapsed') === 'true')
+
+    const toggleSidebar = () => {
+      sidebarCollapsed.value = !sidebarCollapsed.value
+      localStorage.setItem('sidebar-collapsed', String(sidebarCollapsed.value))
+    }
+
+    // Auto-collapse on narrow viewports; restore user preference when wide again
+    let mql = null
+
+    const handleMediaChange = (e) => {
+      if (e.matches) {
+        sidebarCollapsed.value = true
+      } else {
+        sidebarCollapsed.value = localStorage.getItem('sidebar-collapsed') === 'true'
+      }
+    }
 
     // Merge mock tasks from currentUser with API tasks
     const tasks = computed(() => {
@@ -146,10 +203,27 @@ export default {
       }
     }
 
-    onMounted(loadTasks)
+    onMounted(() => {
+      loadTasks()
+
+      mql = window.matchMedia('(max-width: 1024px)')
+      mql.addEventListener('change', handleMediaChange)
+      // Apply correct initial state if the screen is already narrow on mount
+      if (mql.matches) {
+        sidebarCollapsed.value = true
+      }
+    })
+
+    onUnmounted(() => {
+      if (mql) {
+        mql.removeEventListener('change', handleMediaChange)
+      }
+    })
 
     return {
       t,
+      sidebarCollapsed,
+      toggleSidebar,
       showProfileDetails,
       showTasks,
       tasks,
@@ -162,6 +236,87 @@ export default {
 </script>
 
 <style>
+:root {
+  /* Surfaces & borders */
+  --color-bg-app: #f8fafc;          /* app background */
+  --color-bg-subtle: #f1f5f9;       /* hover fills, table header bg, progress tracks */
+  --color-surface: #ffffff;         /* cards, sidebar, dropdowns */
+  --color-border: #e2e8f0;          /* default borders, dividers */
+  --color-border-strong: #cbd5e1;   /* input borders, hovered card borders */
+
+  /* Text */
+  --color-heading-strong: #0f172a;  /* page titles, KPI values, primary emphasis */
+  --color-heading: #1e293b;         /* body default (set on body) */
+  --color-text: #334155;            /* table cells, standard copy */
+  --color-text-label: #475569;      /* table headers, section titles */
+  --color-text-secondary: #64748b;  /* subtitles, labels, secondary copy */
+  --color-text-muted: #94a3b8;      /* placeholders, disabled, tertiary */
+
+  /* Brand / primary */
+  --color-primary: #2563eb;         /* active nav, links, primary buttons */
+  --color-primary-strong: #1e40af;  /* active text on subtle bg, gradients */
+  --color-primary-soft: #3b82f6;    /* focus rings, info accents, chart blue */
+  --color-primary-subtle: #eff6ff;  /* active nav bg, selected row bg */
+
+  /* Status — solid */
+  --color-success: #10b981;
+  --color-success-strong: #059669;
+  --color-warning: #f59e0b;
+  --color-warning-strong: #ea580c;
+  --color-danger: #ef4444;
+  --color-danger-strong: #dc2626;
+  --color-info: #3b82f6;
+
+  /* Status — badge tints (background / text pairs) */
+  --color-success-bg: #d1fae5;
+  --color-success-text: #065f46;
+  --color-warning-bg: #fed7aa;
+  --color-warning-text: #92400e;
+  --color-danger-bg: #fecaca;
+  --color-danger-text: #991b1b;
+  --color-info-bg: #dbeafe;
+  --color-info-text: #1e40af;
+  --color-neutral-bg: #e0e7ff;      /* "stable" badge */
+  --color-neutral-text: #3730a3;
+
+  /* Spacing — 4px/8px scale */
+  --space-1: 0.25rem;   /* 4px  */
+  --space-2: 0.5rem;    /* 8px  */
+  --space-3: 0.75rem;   /* 12px */
+  --space-4: 1rem;      /* 16px */
+  --space-5: 1.25rem;   /* 20px */
+  --space-6: 1.5rem;    /* 24px */
+  --space-8: 2rem;      /* 32px */
+  --space-10: 2.5rem;   /* 40px */
+  --space-12: 3rem;     /* 48px */
+
+  /* Radii */
+  --radius-sm: 6px;     /* badges, inputs, nav links */
+  --radius-md: 8px;     /* buttons, dropdown items, error banners */
+  --radius-lg: 10px;    /* cards, dropdown panels, modals */
+  --radius-full: 9999px;/* avatars, pills */
+
+  /* Shadows (slate-tinted) */
+  --shadow-sm: 0 1px 3px 0 rgba(15, 23, 42, 0.06);
+  --shadow-md: 0 4px 12px rgba(15, 23, 42, 0.08);
+  --shadow-lg: 0 10px 25px rgba(15, 23, 42, 0.12);
+
+  /* Typography */
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+               'Helvetica Neue', Arial, sans-serif;
+  --text-xs: 0.75rem;     /* badges, table headers, filter labels */
+  --text-sm: 0.875rem;    /* table cells, secondary copy, buttons */
+  --text-base: 1rem;      /* nav links, section titles, card body */
+  --text-lg: 1.125rem;    /* card titles */
+  --text-xl: 1.375rem;    /* brand / logo */
+  --text-2xl: 1.875rem;   /* page titles */
+  --text-3xl: 2.25rem;    /* stat / KPI values */
+
+  /* Layout */
+  --sidebar-width: 240px;
+  --content-max-width: 1600px;
+}
+
 * {
   margin: 0;
   padding: 0;
@@ -169,203 +324,219 @@ export default {
 }
 
 body {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-  background: #f8fafc;
-  color: #1e293b;
+  font-family: var(--font-sans);
+  background: var(--color-bg-app);
+  color: var(--color-heading);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-.app {
-  display: flex;
-  flex-direction: column;
+/* ─── App shell ─────────────────────────────────────────── */
+
+.app-layout {
   min-height: 100vh;
 }
 
-.top-nav {
-  background: #ffffff;
-  border-bottom: 1px solid #e2e8f0;
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
-  position: sticky;
+.sidebar {
+  position: fixed;
   top: 0;
+  bottom: 0;
+  left: 0;
+  width: var(--sidebar-width);
+  background: var(--color-surface);
+  border-right: 1px solid var(--color-border);
+  display: flex;
+  flex-direction: column;
   z-index: 100;
+  transition: width 0.2s ease;
+  overflow: hidden;
 }
 
-.nav-container {
-  max-width: 1600px;
-  margin: 0 auto;
+.sidebar-brand {
+  padding: var(--space-6) var(--space-5);
+  border-bottom: 1px solid var(--color-border);
   display: flex;
-  align-items: center;
-  padding: 0 2rem;
-  height: 70px;
+  flex-direction: column;
 }
 
-.nav-container > .nav-tabs {
-  margin-left: auto;
-  margin-right: 1rem;
-}
-
-.nav-container > .language-switcher {
-  margin-right: 1rem;
-}
-
-.logo {
-  display: flex;
-  align-items: baseline;
-  gap: 0.75rem;
-}
-
-.logo h1 {
-  font-size: 1.375rem;
+.sidebar-brand h1 {
+  font-size: var(--text-xl);
   font-weight: 700;
-  color: #0f172a;
+  color: var(--color-heading-strong);
   letter-spacing: -0.025em;
 }
 
-.subtitle {
-  font-size: 0.813rem;
-  color: #64748b;
+.sidebar-subtitle {
+  display: block;
+  font-size: var(--text-xs);
+  color: var(--color-text-secondary);
   font-weight: 400;
-  padding-left: 0.75rem;
-  border-left: 1px solid #e2e8f0;
+  margin-top: var(--space-1);
 }
 
-.nav-tabs {
+.sidebar-nav {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--space-3);
   display: flex;
-  gap: 0.25rem;
+  flex-direction: column;
+  gap: var(--space-1);
 }
 
-.nav-tabs a {
-  padding: 0.625rem 1.25rem;
-  color: #64748b;
-  text-decoration: none;
+.sidebar-nav a {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-md);
+  color: var(--color-text-secondary);
+  font-size: var(--text-sm);
   font-weight: 500;
-  font-size: 0.938rem;
-  border-radius: 6px;
-  transition: all 0.2s ease;
-  position: relative;
+  text-decoration: none;
+  transition: background-color 0.15s ease, color 0.15s ease;
 }
 
-.nav-tabs a:hover {
-  color: #0f172a;
-  background: #f1f5f9;
+.sidebar-nav a:hover {
+  background: var(--color-bg-subtle);
+  color: var(--color-heading-strong);
 }
 
-.nav-tabs a.active {
-  color: #2563eb;
-  background: #eff6ff;
+.sidebar-nav a.active {
+  background: var(--color-primary-subtle);
+  color: var(--color-primary-strong);
+  font-weight: 600;
 }
 
-.nav-tabs a.active::after {
-  content: '';
-  position: absolute;
-  bottom: -1px;
-  left: 0;
-  right: 0;
-  height: 2px;
-  background: #2563eb;
+.sidebar-nav a svg {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+.sidebar-footer {
+  border-top: 1px solid var(--color-border);
+  padding: var(--space-3);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.content-area {
+  margin-left: var(--sidebar-width);
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  transition: margin-left 0.2s ease;
 }
 
 .main-content {
   flex: 1;
-  max-width: 1600px;
+  max-width: var(--content-max-width);
   width: 100%;
   margin: 0 auto;
-  padding: 1.5rem 2rem;
+  padding: var(--space-6) var(--space-8);
 }
 
+/* ─── Page structure ────────────────────────────────────── */
+
 .page-header {
-  margin-bottom: 1.5rem;
+  margin-bottom: var(--space-6);
 }
 
 .page-header h2 {
-  font-size: 1.875rem;
+  font-size: var(--text-2xl);
   font-weight: 700;
-  color: #0f172a;
-  margin-bottom: 0.375rem;
+  color: var(--color-heading-strong);
+  margin-bottom: var(--space-2);
   letter-spacing: -0.025em;
 }
 
 .page-header p {
-  color: #64748b;
-  font-size: 0.938rem;
+  color: var(--color-text-secondary);
+  font-size: var(--text-sm);
 }
+
+/* ─── Stat grid ─────────────────────────────────────────── */
 
 .stats-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 1.25rem;
-  margin-bottom: 1.5rem;
+  gap: var(--space-5);
+  margin-bottom: var(--space-6);
 }
 
 .stat-card {
-  background: white;
-  padding: 1.25rem;
-  border-radius: 10px;
-  border: 1px solid #e2e8f0;
+  background: var(--color-surface);
+  padding: var(--space-5);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-border);
   transition: all 0.2s ease;
 }
 
 .stat-card:hover {
-  border-color: #cbd5e1;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+  border-color: var(--color-border-strong);
+  box-shadow: var(--shadow-md);
 }
 
 .stat-label {
-  color: #64748b;
-  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+  font-size: var(--text-sm);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  margin-bottom: 0.625rem;
+  margin-bottom: var(--space-3);
 }
 
 .stat-value {
-  font-size: 2.25rem;
+  font-size: var(--text-3xl);
   font-weight: 700;
-  color: #0f172a;
+  color: var(--color-heading-strong);
   letter-spacing: -0.025em;
 }
 
 .stat-card.warning .stat-value {
-  color: #ea580c;
+  color: var(--color-warning-strong);
 }
 
 .stat-card.success .stat-value {
-  color: #059669;
+  color: var(--color-success-strong);
 }
 
 .stat-card.danger .stat-value {
-  color: #dc2626;
+  color: var(--color-danger-strong);
 }
 
 .stat-card.info .stat-value {
-  color: #2563eb;
+  color: var(--color-primary);
 }
 
+/* ─── Cards ─────────────────────────────────────────────── */
+
 .card {
-  background: white;
-  border-radius: 10px;
-  padding: 1.25rem;
-  border: 1px solid #e2e8f0;
-  margin-bottom: 1.25rem;
+  background: var(--color-surface);
+  border-radius: var(--radius-lg);
+  padding: var(--space-6);
+  border: 1px solid var(--color-border);
+  margin-bottom: var(--space-5);
 }
 
 .card-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 1rem;
-  padding-bottom: 0.875rem;
-  border-bottom: 1px solid #e2e8f0;
+  margin-bottom: var(--space-4);
+  padding-bottom: var(--space-3);
+  border-bottom: 1px solid var(--color-border);
 }
 
 .card-title {
-  font-size: 1.125rem;
+  font-size: var(--text-lg);
   font-weight: 700;
-  color: #0f172a;
+  color: var(--color-heading-strong);
   letter-spacing: -0.025em;
 }
+
+/* ─── Tables ─────────────────────────────────────────────── */
 
 .table-container {
   overflow-x: auto;
@@ -377,26 +548,26 @@ table {
 }
 
 thead {
-  background: #f8fafc;
-  border-top: 1px solid #e2e8f0;
-  border-bottom: 1px solid #e2e8f0;
+  background: var(--color-bg-app);
+  border-top: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--color-border);
 }
 
 th {
   text-align: left;
-  padding: 0.5rem 0.75rem;
+  padding: var(--space-3) var(--space-4);
   font-weight: 600;
-  color: #475569;
-  font-size: 0.75rem;
+  color: var(--color-text-label);
+  font-size: var(--text-xs);
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
 
 td {
-  padding: 0.5rem 0.75rem;
-  border-top: 1px solid #f1f5f9;
-  color: #334155;
-  font-size: 0.875rem;
+  padding: var(--space-3) var(--space-4);
+  border-top: 1px solid var(--color-bg-subtle);
+  color: var(--color-text);
+  font-size: var(--text-sm);
 }
 
 tbody tr {
@@ -404,83 +575,214 @@ tbody tr {
 }
 
 tbody tr:hover {
-  background: #f8fafc;
+  background: var(--color-bg-app);
 }
+
+.clickable-row {
+  cursor: pointer;
+}
+
+.clickable-row:hover {
+  background: var(--color-primary-subtle);
+}
+
+/* ─── Badges ─────────────────────────────────────────────── */
 
 .badge {
   display: inline-block;
-  padding: 0.313rem 0.75rem;
-  border-radius: 6px;
-  font-size: 0.75rem;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-sm);
+  font-size: var(--text-xs);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.025em;
 }
 
 .badge.success {
-  background: #d1fae5;
-  color: #065f46;
+  background: var(--color-success-bg);
+  color: var(--color-success-text);
 }
 
 .badge.warning {
-  background: #fed7aa;
-  color: #92400e;
+  background: var(--color-warning-bg);
+  color: var(--color-warning-text);
 }
 
 .badge.danger {
-  background: #fecaca;
-  color: #991b1b;
+  background: var(--color-danger-bg);
+  color: var(--color-danger-text);
 }
 
 .badge.info {
-  background: #dbeafe;
-  color: #1e40af;
+  background: var(--color-info-bg);
+  color: var(--color-info-text);
 }
 
 .badge.increasing {
-  background: #d1fae5;
-  color: #065f46;
+  background: var(--color-success-bg);
+  color: var(--color-success-text);
 }
 
 .badge.decreasing {
-  background: #fecaca;
-  color: #991b1b;
+  background: var(--color-danger-bg);
+  color: var(--color-danger-text);
 }
 
 .badge.stable {
-  background: #e0e7ff;
-  color: #3730a3;
+  background: var(--color-neutral-bg);
+  color: var(--color-neutral-text);
 }
 
 .badge.high {
-  background: #fecaca;
-  color: #991b1b;
+  background: var(--color-danger-bg);
+  color: var(--color-danger-text);
 }
 
 .badge.medium {
-  background: #fed7aa;
-  color: #92400e;
+  background: var(--color-warning-bg);
+  color: var(--color-warning-text);
 }
 
 .badge.low {
-  background: #dbeafe;
-  color: #1e40af;
+  background: var(--color-info-bg);
+  color: var(--color-info-text);
 }
+
+/* ─── Loading / error states ────────────────────────────── */
 
 .loading {
   text-align: center;
-  padding: 3rem;
-  color: #64748b;
-  font-size: 0.938rem;
+  padding: var(--space-12);
+  color: var(--color-text-secondary);
+  font-size: var(--text-sm);
 }
 
 .error {
-  background: #fef2f2;
-  border: 1px solid #fecaca;
-  color: #991b1b;
-  padding: 1rem;
-  border-radius: 8px;
-  margin: 1rem 0;
-  font-size: 0.938rem;
+  background: var(--color-danger-bg);
+  border: 1px solid var(--color-danger-bg);
+  color: var(--color-danger-text);
+  padding: var(--space-4);
+  border-radius: var(--radius-md);
+  margin: var(--space-4) 0;
+  font-size: var(--text-sm);
+}
+
+/* ─── Sidebar collapse ──────────────────────────────────── */
+
+/* Narrow the sidebar and shift the content in one token change */
+.app-layout.sidebar-collapsed {
+  --sidebar-width: 64px;
+}
+
+/* ── Brand mark (compact monogram, shown only when collapsed) ── */
+
+.sidebar-brand-mark {
+  display: none;
+  font-size: var(--text-lg);
+  font-weight: 700;
+  color: var(--color-heading-strong);
+  text-align: center;
+  width: 100%;
+  white-space: nowrap;
+}
+
+.app-layout.sidebar-collapsed .sidebar-brand {
+  padding: var(--space-4) var(--space-2);
+  align-items: center;
+  justify-content: center;
+}
+
+.app-layout.sidebar-collapsed .sidebar-brand h1,
+.app-layout.sidebar-collapsed .sidebar-brand .sidebar-subtitle {
+  display: none;
+}
+
+.app-layout.sidebar-collapsed .sidebar-brand .sidebar-brand-mark {
+  display: block;
+}
+
+/* ── Nav links: icon-only, centered ── */
+
+.app-layout.sidebar-collapsed .sidebar-nav a {
+  justify-content: center;
+  padding: var(--space-2);
+}
+
+.app-layout.sidebar-collapsed .sidebar-nav a span {
+  display: none;
+}
+
+/* ── Footer widgets: hide text, center trigger buttons ── */
+
+/* LanguageSwitcher — hide locale label and chevron */
+.app-layout.sidebar-collapsed .sidebar-footer .language-label {
+  display: none;
+}
+
+.app-layout.sidebar-collapsed .sidebar-footer .language-button .chevron {
+  display: none;
+}
+
+/* Center the language-button trigger */
+.app-layout.sidebar-collapsed .sidebar-footer .language-button {
+  justify-content: center;
+  padding: var(--space-2);
+}
+
+/* ProfileMenu — hide name and chevron */
+.app-layout.sidebar-collapsed .sidebar-footer .profile-name {
+  display: none;
+}
+
+.app-layout.sidebar-collapsed .sidebar-footer .profile-button .chevron {
+  display: none;
+}
+
+/* Center the profile-button trigger */
+.app-layout.sidebar-collapsed .sidebar-footer .profile-button {
+  justify-content: center;
+  padding: var(--space-2);
+}
+
+/* ── Toggle button ── */
+
+.sidebar-toggle {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-3);
+  background: transparent;
+  border: none;
+  border-top: 1px solid var(--color-border);
+  border-radius: 0;
+  cursor: pointer;
+  color: var(--color-text-secondary);
+  font-family: inherit;
+  font-size: var(--text-sm);
+  transition: background-color 0.15s ease, color 0.15s ease;
+  margin-top: var(--space-1);
+}
+
+.sidebar-toggle:hover {
+  background: var(--color-bg-subtle);
+  color: var(--color-heading-strong);
+}
+
+.sidebar-toggle svg {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+/* When collapsed: center the icon and rotate to point right */
+.app-layout.sidebar-collapsed .sidebar-toggle {
+  justify-content: center;
+  padding: var(--space-2);
+}
+
+.app-layout.sidebar-collapsed .sidebar-toggle .toggle-icon {
+  transform: rotate(180deg);
 }
 </style>
