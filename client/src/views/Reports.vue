@@ -1,27 +1,27 @@
 <template>
   <div class="reports">
     <div class="page-header">
-      <h2>Performance Reports</h2>
-      <p>View quarterly performance metrics and monthly trends</p>
+      <h2>{{ t('reports.title') }}</h2>
+      <p>{{ t('reports.description') }}</p>
     </div>
 
-    <div v-if="loading" class="loading">Loading reports...</div>
+    <div v-if="loading" class="loading">{{ t('reports.loading') }}</div>
     <div v-else-if="error" class="error">{{ error }}</div>
     <div v-else>
       <!-- Quarterly Performance -->
       <div class="card">
         <div class="card-header">
-          <h3 class="card-title">Quarterly Performance</h3>
+          <h3 class="card-title">{{ t('reports.quarterly.title') }}</h3>
         </div>
         <div class="table-container">
           <table class="reports-table">
             <thead>
               <tr>
-                <th>Quarter</th>
-                <th>Total Orders</th>
-                <th>Total Revenue</th>
-                <th>Avg Order Value</th>
-                <th>Fulfillment Rate</th>
+                <th>{{ t('reports.quarterly.quarter') }}</th>
+                <th>{{ t('reports.quarterly.totalOrders') }}</th>
+                <th>{{ t('reports.quarterly.totalRevenue') }}</th>
+                <th>{{ t('reports.quarterly.avgOrderValue') }}</th>
+                <th>{{ t('reports.quarterly.fulfillmentRate') }}</th>
               </tr>
             </thead>
             <tbody>
@@ -44,7 +44,7 @@
       <!-- Monthly Trends Chart -->
       <div class="card">
         <div class="card-header">
-          <h3 class="card-title">Monthly Revenue Trend</h3>
+          <h3 class="card-title">{{ t('reports.monthlyTrend.title') }}</h3>
         </div>
         <div class="chart-container">
           <div class="bar-chart">
@@ -65,17 +65,17 @@
       <!-- Month-over-Month Comparison -->
       <div class="card">
         <div class="card-header">
-          <h3 class="card-title">Month-over-Month Analysis</h3>
+          <h3 class="card-title">{{ t('reports.monthOverMonth.title') }}</h3>
         </div>
         <div class="table-container">
           <table class="reports-table">
             <thead>
               <tr>
-                <th>Month</th>
-                <th>Orders</th>
-                <th>Revenue</th>
-                <th>Change</th>
-                <th>Growth Rate</th>
+                <th>{{ t('reports.monthOverMonth.month') }}</th>
+                <th>{{ t('reports.monthOverMonth.orders') }}</th>
+                <th>{{ t('reports.monthOverMonth.revenue') }}</th>
+                <th>{{ t('reports.monthOverMonth.change') }}</th>
+                <th>{{ t('reports.monthOverMonth.growthRate') }}</th>
               </tr>
             </thead>
             <tbody>
@@ -104,19 +104,19 @@
       <!-- Summary Stats -->
       <div class="stats-grid">
         <div class="stat-card">
-          <div class="stat-label">Total Revenue (YTD)</div>
+          <div class="stat-label">{{ t('reports.summary.totalRevenue') }}</div>
           <div class="stat-value">${{ formatNumber(totalRevenue) }}</div>
         </div>
         <div class="stat-card">
-          <div class="stat-label">Avg Monthly Revenue</div>
+          <div class="stat-label">{{ t('reports.summary.avgMonthlyRevenue') }}</div>
           <div class="stat-value">${{ formatNumber(avgMonthlyRevenue) }}</div>
         </div>
         <div class="stat-card">
-          <div class="stat-label">Total Orders (YTD)</div>
+          <div class="stat-label">{{ t('reports.summary.totalOrders') }}</div>
           <div class="stat-value">{{ totalOrders }}</div>
         </div>
         <div class="stat-card">
-          <div class="stat-label">Best Performing Quarter</div>
+          <div class="stat-label">{{ t('reports.summary.bestQuarter') }}</div>
           <div class="stat-value">{{ bestQuarter }}</div>
         </div>
       </div>
@@ -125,7 +125,13 @@
 </template>
 
 <script>
-import axios from 'axios'
+import { watch } from 'vue'
+import { api } from '../api'
+import { useFilters } from '../composables/useFilters'
+import { useI18n } from '../composables/useI18n'
+
+const { selectedPeriod, selectedLocation, selectedCategory, selectedStatus, getCurrentFilters } = useFilters()
+const { t } = useI18n()
 
 export default {
   name: 'Reports',
@@ -142,38 +148,34 @@ export default {
     }
   },
   mounted() {
-    console.log('Reports component mounted')
     this.loadData()
+    // Re-fetch when the global filter bar changes
+    watch([selectedPeriod, selectedLocation, selectedCategory, selectedStatus], () => { this.loadData() })
   },
   methods: {
+    t(key, params) { return t(key, params) },
+
     async loadData() {
-      console.log('Loading reports data...')
       try {
         this.loading = true
+        const filters = getCurrentFilters()
 
         // Fetch quarterly data
-        console.log('Fetching quarterly data...')
-        const quarterlyResponse = await axios.get('http://localhost:8001/api/reports/quarterly')
-        this.quarterlyData = quarterlyResponse.data
-        console.log('Quarterly data:', this.quarterlyData)
+        const quarterlyResponse = await api.getQuarterlyReports(filters)
+        this.quarterlyData = quarterlyResponse
 
         // Fetch monthly data
-        console.log('Fetching monthly data...')
-        const monthlyResponse = await axios.get('http://localhost:8001/api/reports/monthly-trends')
-        this.monthlyData = monthlyResponse.data
-        console.log('Monthly data:', this.monthlyData)
+        const monthlyResponse = await api.getMonthlyTrends(filters)
+        this.monthlyData = monthlyResponse
 
         // Calculate summary stats
-        console.log('Calculating summary stats...')
         this.calculateSummaryStats()
-        console.log('Summary stats calculated')
 
       } catch (err) {
-        console.log('Error loading reports:', err)
-        this.error = 'Failed to load reports: ' + err.message
+        console.error('Error loading reports:', err)
+        this.error = t('reports.loadError')
       } finally {
         this.loading = false
-        console.log('Loading complete')
       }
     },
 
@@ -212,7 +214,6 @@ export default {
     },
 
     formatNumber(num) {
-      console.log('Formatting number:', num)
       // Format number with commas
       var str = num.toString()
       var parts = str.split('.')
@@ -240,20 +241,22 @@ export default {
     },
 
     formatMonth(monthStr) {
-      console.log('Formatting month:', monthStr)
       // Convert YYYY-MM to readable format
       var parts = monthStr.split('-')
       var year = parts[0]
       var month = parts[1]
 
-      var monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+      var monthNames = [
+        t('months.jan'), t('months.feb'), t('months.mar'), t('months.apr'),
+        t('months.may'), t('months.jun'), t('months.jul'), t('months.aug'),
+        t('months.sep'), t('months.oct'), t('months.nov'), t('months.dec')
+      ]
       var monthIndex = parseInt(month) - 1
 
       return monthNames[monthIndex] + ' ' + year
     },
 
     getBarHeight(revenue) {
-      console.log('Calculating bar height for revenue:', revenue)
       // Calculate bar height (max height 200px)
       var maxRevenue = 0
       for (var i = 0; i < this.monthlyData.length; i++) {
