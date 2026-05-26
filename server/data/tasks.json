@@ -1,0 +1,23 @@
+[
+  {
+    "id": 101,
+    "title": "Review supplier contracts for Q4 renewals",
+    "priority": "high",
+    "dueDate": "2025-10-15",
+    "status": "pending"
+  },
+  {
+    "id": 102,
+    "title": "Schedule cycle count for San Francisco warehouse",
+    "priority": "medium",
+    "dueDate": "2025-10-20",
+    "status": "pending"
+  },
+  {
+    "id": 103,
+    "title": "Archive delivered orders from Q1",
+    "priority": "low",
+    "dueDate": "2025-10-30",
+    "status": "completed"
+  }
+]

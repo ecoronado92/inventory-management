@@ -2,7 +2,7 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from typing import List, Optional
 from pydantic import BaseModel
-from mock_data import inventory_items, orders, demand_forecasts, backlog_items, spending_summary, monthly_spending, category_spending, recent_transactions, purchase_orders
+from mock_data import inventory_items, orders, demand_forecasts, backlog_items, spending_summary, monthly_spending, category_spending, recent_transactions, purchase_orders, tasks
 
 app = FastAPI(title="Factory Inventory Management System")
 
@@ -119,6 +119,19 @@ class CreatePurchaseOrderRequest(BaseModel):
     unit_cost: float
     expected_delivery_date: str
     notes: Optional[str] = None
+
+class Task(BaseModel):
+    id: int
+    title: str
+    priority: str
+    # camelCase to match the frontend task shape (TasksModal reads task.dueDate)
+    dueDate: str
+    status: str
+
+class CreateTaskRequest(BaseModel):
+    title: str
+    priority: str
+    dueDate: str
 
 # API endpoints
 @app.get("/")
@@ -317,6 +330,45 @@ def get_monthly_trends(
     result = list(months.values())
     result.sort(key=lambda x: x['month'])
     return result
+
+@app.get("/api/tasks", response_model=List[Task])
+def get_tasks():
+    """Get all tasks"""
+    return tasks
+
+@app.post("/api/tasks", response_model=Task, status_code=201)
+def create_task(request: CreateTaskRequest):
+    """Create a new task"""
+    # IDs start at 101 so they never collide with the client-side mock user tasks (ids 1-4),
+    # which the frontend manages locally and distinguishes by id
+    next_id = max((task['id'] for task in tasks), default=100) + 1
+    new_task = {
+        'id': next_id,
+        'title': request.title,
+        'priority': request.priority,
+        'dueDate': request.dueDate,
+        'status': 'pending'
+    }
+    tasks.append(new_task)
+    return new_task
+
+@app.patch("/api/tasks/{task_id}", response_model=Task)
+def toggle_task(task_id: int):
+    """Toggle a task between pending and completed"""
+    for task in tasks:
+        if task['id'] == task_id:
+            task['status'] = 'completed' if task['status'] == 'pending' else 'pending'
+            return task
+    raise HTTPException(status_code=404, detail=f"Task {task_id} not found")
+
+@app.delete("/api/tasks/{task_id}")
+def delete_task(task_id: int):
+    """Delete a task"""
+    for index, task in enumerate(tasks):
+        if task['id'] == task_id:
+            tasks.pop(index)
+            return {"message": f"Task {task_id} deleted"}
+    raise HTTPException(status_code=404, detail=f"Task {task_id} not found")
 
 if __name__ == "__main__":
     import uvicorn
