@@ -44,6 +44,14 @@
           </svg>
           <span>{{ t('nav.demandForecast') }}</span>
         </router-link>
+        <router-link to="/backlog" :class="{ active: $route.path === '/backlog' }" :title="t('nav.backlog')">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="12 2 2 7 12 12 22 7 12 2"/>
+            <polyline points="2 17 12 22 22 17"/>
+            <polyline points="2 12 12 17 22 12"/>
+          </svg>
+          <span>{{ t('nav.backlog') }}</span>
+        </router-link>
         <router-link to="/reports" :class="{ active: $route.path === '/reports' }" :title="t('nav.reports')">
           <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
